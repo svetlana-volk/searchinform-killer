@@ -1,0 +1,61 @@
+# Root clang-tidy configuration.
+#
+# This file defines the default static-analysis rules for the project.
+# The project uses the same naming style as the user's C++ practice projects:
+# - types: CamelCase
+# - functions/methods: lower_case
+# - variables: lower_case
+# - private members: lower_case with trailing underscore
+# - enum constants: CamelCase
+
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  readability-identifier-naming,
+  modernize-use-braced-init-list,
+  -modernize-use-trailing-return-type
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: '(src|tests)/.*'
+
+FormatStyle: none
+
+SystemHeaders: false
+
+CheckOptions:
+  # variables
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+
+  - key: readability-identifier-naming.PrivateMemberSuffix
+    value: _
+
+  - key: readability-identifier-naming.PrivateMemberCase
+    value: lower_case
+
+  # functions
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+
+  # types
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+
+  # enum values
+  - key: readability-identifier-naming.EnumConstantCase
+    value: CamelCase
+
+  # namespace
+  - key: readability-identifier-naming.NamespaceCase
+    value: lower_case

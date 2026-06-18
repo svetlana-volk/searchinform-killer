@@ -1,0 +1,64 @@
+# Root clang-format configuration.
+#
+# This file defines the formatting style for the project.
+# The project uses the same C++ formatting style as the user's existing
+# Linux/C++ practice projects, with only include grouping adapted for this
+# standalone Windows test assignment.
+
+BasedOnStyle: LLVM
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+
+AccessModifierOffset: -4
+
+BreakBeforeBraces: Attach
+PointerAlignment: Left
+
+SpaceBeforeParens: ControlStatements
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeRangeBasedForLoopColon: true
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+BreakBeforeBinaryOperators: None
+
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Empty
+
+AlwaysBreakTemplateDeclarations: Yes
+
+BinPackArguments: false
+BinPackParameters: false
+
+AlignTrailingComments: true
+
+Cpp11BracedListStyle: true
+MaxEmptyLinesToKeep: 1
+KeepEmptyLinesAtTheStartOfBlocks: false
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+IncludeCategories:
+  # Project headers: "CommandLine.hpp", "WildcardMatcher.hpp", etc.
+  - Regex: '^".*"$'
+    Priority: 1
+
+  # C++ standard library headers: <chrono>, <string>, <vector>, <iostream>
+  - Regex: '^<[a-zA-Z0-9_]+>$'
+    Priority: 2
+
+  # Platform / third-party headers: <windows.h>, <tlhelp32.h>, etc.
+  - Regex: '^<.*>$'
+    Priority: 3
+
+  # Anything else
+  - Regex: '.*'
+    Priority: 4
