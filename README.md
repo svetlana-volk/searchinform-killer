@@ -2,12 +2,6 @@
 
 Windows command-line utility for terminating processes by name mask and runtime threshold.
 
-The expected command-line interface follows the assignment example:
-
-```bat
-killer.exe --procmask "*chrome*" --time 5
-```
-
 ## Requirements
 
 * Windows 10/11
@@ -34,21 +28,95 @@ Debug build:
 scripts\build-debug.bat
 ```
 
+Debug builds enable MSVC static analysis.
+
 Release build:
 
 ```bat
 scripts\build-release.bat
 ```
 
+Application builds do not require GoogleTest.
+
+## Run
+
+After building, run the application from the corresponding build directory.
+
+Debug build example:
+
+```bat
+build-debug\killer.exe --procmask "*chrome*" --time 5
+```
+
+Release build example:
+
+```bat
+build-release\killer.exe --procmask "*chrome*" --time 5
+```
+
+Command-line format:
+
+```bat
+killer.exe --procmask <mask> --time <minutes> [--dry-run]
+```
+
+Supported options:
+
+```text
+--procmask <mask>   Non-empty process name mask. Supports exact names and wildcard masks.
+                    Wildcard characters: * matches any sequence, ? matches one character.
+                    Other characters are matched literally.
+                    Examples: chrome.exe, *chrome*, chrome?.exe, "My App.exe"
+
+--time <minutes>    Minimum process running time in minutes.
+                    Must be a positive decimal integer.
+
+--dry-run           Print matching processes without terminating them.
+
+--help, -h          Show usage information.
+```
+
+Examples:
+
+```bat
+killer.exe --procmask "*chrome*" --time 5
+killer.exe --procmask "chrome.exe" --time 10 --dry-run
+killer.exe --help
+```
+
+## Tests
+
+Run tests:
+
+```bat
+scripts\run-tests.bat
+```
+
+Command-line parsing is covered by:
+
+```text
+tests\CommandLineTests.cpp
+```
+
+Tests use GoogleTest. The test build first tries to use a locally available GoogleTest package. If GoogleTest is not found, CMake uses FetchContent to download GoogleTest for the test build.
+
+The downloaded GoogleTest sources are cached inside the test build directory:
+
+```text
+build-test\_deps\
+```
+
+This dependency is used only for tests and is not linked into the final `killer.exe` application.
+
 ## Format
 
-Format source files:
+Format project source and test files:
 
 ```bat
 scripts\format.bat
 ```
 
-The format script modifies files in place.
+The script runs `clang-format`, uses formatting rules from `.clang-format`, and modifies files in place.
 
 ## Static analysis
 
@@ -66,7 +134,7 @@ This check is part of the regular Debug build.
 
 ### clang-tidy
 
-clang-tidy can be run separately:
+clang-tidy can be run separately for project source files:
 
 ```bat
 scripts\tidy.bat

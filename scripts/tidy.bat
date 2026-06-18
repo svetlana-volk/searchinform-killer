@@ -7,6 +7,9 @@ rem
 rem Configures a separate clang-tidy build directory and runs clang-tidy for
 rem project source files.
 rem
+rem Tests are intentionally not analyzed here because they depend on GoogleTest
+rem and use framework macros that do not follow the project naming rules.
+rem
 rem MSVC /analyze is intentionally not enabled here because clang-tidy consumes
 rem compile_commands.json and may not understand MSVC analyzer-specific flags.
 rem
@@ -47,13 +50,6 @@ set TIDY_RESULT=0
 for /R src %%f in (*.cpp) do (
     clang-tidy -quiet "%%f" -p build-tidy
     if errorlevel 1 set TIDY_RESULT=1
-)
-
-if exist tests (
-    for /R tests %%f in (*.cpp) do (
-        clang-tidy -quiet "%%f" -p build-tidy
-        if errorlevel 1 set TIDY_RESULT=1
-    )
 )
 
 if %TIDY_RESULT% neq 0 (
