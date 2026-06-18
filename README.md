@@ -92,10 +92,11 @@ Run tests:
 scripts\run-tests.bat
 ```
 
-Command-line parsing is covered by:
+Command-line parsing and wildcard matching are covered by:
 
 ```text
 tests\CommandLineTests.cpp
+tests\WildcardMatcherTests.cpp
 ```
 
 Tests use GoogleTest. The test build first tries to use a locally available GoogleTest package. If GoogleTest is not found, CMake uses FetchContent to download GoogleTest for the test build.

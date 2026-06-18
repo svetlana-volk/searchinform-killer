@@ -12,6 +12,7 @@ option(KILLER_FETCH_GTEST "Download GoogleTest if it is not found locally" OFF)
 
 add_library(killer_core STATIC
     src/CommandLine.cpp
+    src/WildcardMatcher.cpp
 )
 
 target_include_directories(killer_core PUBLIC
@@ -72,6 +73,7 @@ if(BUILD_TESTING)
 
     add_executable(killer_tests
         tests/CommandLineTests.cpp
+        tests/WildcardMatcherTests.cpp
     )
 
     target_link_libraries(killer_tests PRIVATE
