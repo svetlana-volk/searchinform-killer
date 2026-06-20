@@ -291,8 +291,6 @@ INSTANTIATE_TEST_SUITE_P(
     InvalidTimeValueTest,
     ::testing::Values(L"", L"0", L"-5", L"2.5", L"0x10", L"10min", L"abc", L"999999999999999999999999999999"));
 
-class InvalidProcessMaskTest : public ::testing::TestWithParam<std::wstring_view> {};
-
 TEST(CommandLineTests, RejectsEmptyProcessMask) {
     const std::array<std::wstring_view, 5> args{
         L"killer.exe",

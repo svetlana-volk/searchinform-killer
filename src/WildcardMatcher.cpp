@@ -18,7 +18,7 @@ bool WildcardMatcher::matches(std::wstring_view process_name) const {
     std::size_t mask_index{0};
     std::size_t name_index{0};
 
-    std::size_t last_star_index{std::wstring::npos};
+    std::size_t last_star_index{std::wstring_view::npos};
     std::size_t name_index_after_star{0};
 
     while (name_index < process_name.size()) {

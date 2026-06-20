@@ -37,8 +37,8 @@ std::wstring invalid_positive_int_message(std::wstring_view option_name) {
     return std::format(L"{} must be a positive integer (1 to 2147483647).", option_name);
 }
 
-std::wstring invalid_process_mask_message(std::wstring_view option_name) {
-    return std::format(L"{} may contain only letters, digits, '.', '_', '-', '*', and '?'.", option_name);
+std::wstring empty_process_mask_message(std::wstring_view option_name) {
+    return std::format(L"{} must not be empty.", option_name);
 }
 
 std::wstring unknown_argument_message(std::wstring_view arg) {
@@ -115,7 +115,7 @@ ParseResult parse_command_line(std::span<const std::wstring_view> args) {
             const std::wstring_view mask_value{args[arg_index + 1]};
 
             if (!is_valid_process_mask(mask_value)) {
-                return {.error_message = invalid_process_mask_message(process_mask_option)};
+                return {.error_message = empty_process_mask_message(process_mask_option)};
             }
 
             process_mask = std::wstring{mask_value};
