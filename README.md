@@ -5,7 +5,8 @@ Windows command-line utility for terminating processes by name mask and runtime 
 ## Requirements
 
 * Windows 10/11
-* Visual Studio 2022 C++ Build Tools or newer, with MSVC and Windows SDK
+* C++20-capable MSVC compiler
+* Visual Studio 2022 C++ Build Tools or newer, with Windows SDK
 * CMake 3.20 or newer
 * clang-format, for source formatting
 * clang-tidy, for additional static analysis
@@ -92,11 +93,12 @@ Run tests:
 scripts\run-tests.bat
 ```
 
-Command-line parsing and wildcard matching are covered by:
+Command-line parsing, wildcard matching, and process filtering are covered by:
 
 ```text
 tests\CommandLineTests.cpp
 tests\WildcardMatcherTests.cpp
+tests\ProcessFilterTests.cpp
 ```
 
 Tests use GoogleTest. The test build first tries to use a locally available GoogleTest package. If GoogleTest is not found, CMake uses FetchContent to download GoogleTest for the test build.
