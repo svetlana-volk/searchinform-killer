@@ -1,6 +1,21 @@
 # killer
 
-Windows command-line utility for terminating processes by name mask and runtime threshold.
+## Overview
+
+`killer` is a Windows command-line utility for terminating processes that match a name mask and have been running for at least a given amount of time.
+
+The utility enumerates running Windows processes, obtains their runtime from process creation time, filters them by wildcard process-name mask and minimum running time, and then either previews or terminates the matching processes.
+
+## Features
+
+* Wildcard process-name matching with `*` and `?`.
+* Case-insensitive process-name matching.
+* Wide-character process-name handling, including non-ASCII names such as Cyrillic process names.
+* Runtime filtering by minimum process age in minutes.
+* `--dry-run` mode for safe preview before termination.
+* Self-protection: the running `killer.exe` process is excluded from termination candidates.
+* Summary output with matched, terminated, skipped, and failed process counts.
+* Explicit exit codes for success, application/input failure, and partial operation failure.
 
 ## Requirements
 
@@ -66,10 +81,11 @@ killer.exe --procmask <mask> --time <minutes> [--dry-run]
 Supported options:
 
 ```text
---procmask <mask>   Non-empty process name mask. Supports exact names and wildcard masks.
+--procmask <mask>   Non-empty process name mask. Matching is case-insensitive.
+                    Supports exact names and wildcard masks.
                     Wildcard characters: * matches any sequence, ? matches one character.
                     Other characters are matched literally.
-                    Examples: chrome.exe, *chrome*, chrome?.exe, "My App.exe"
+                    Examples: chrome.exe, CHROME.EXE, *Chrome*, chrome?.exe, "My App.exe"
 
 --time <minutes>    Minimum process running time in minutes.
                     Must be a positive decimal integer.
@@ -116,6 +132,22 @@ Summary:
   Terminated: 1
   Failed: 0
 ```
+
+## Behavior notes
+
+Process running time is measured from process creation time, not CPU time.
+
+The running `killer.exe` process is always excluded from termination candidates, even if it matches the provided process mask.
+
+Process names are handled as wide strings using Windows wide-character process APIs. On Windows, this means UTF-16 process-name handling. Non-ASCII process names, such as Cyrillic names, are supported by the matching logic.
+
+## Known limitations
+
+Process enumeration and termination are separate steps. A process may exit or change state between enumeration, filtering, and termination. In that case, termination may fail and the failure is reported in the summary.
+
+`--dry-run` checks termination access at the time of the dry-run check. This does not guarantee that a later normal run will be able to terminate the same processes.
+
+Some processes may be skipped or may fail to terminate because the current user does not have sufficient permissions to open them with termination rights.
 
 ## Exit codes
 
