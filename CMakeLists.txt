@@ -11,8 +11,10 @@ option(BUILD_TESTING "Build tests" OFF)
 option(KILLER_FETCH_GTEST "Download GoogleTest if it is not found locally" OFF)
 
 add_library(killer_core STATIC
+    src/Application.cpp
     src/CommandLine.cpp
     src/ProcessFilter.cpp
+    src/ProcessTerminator.cpp
     src/WildcardMatcher.cpp
     src/WinProcessEnumerator.cpp
 )

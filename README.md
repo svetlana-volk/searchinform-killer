@@ -43,6 +43,8 @@ Application builds do not require GoogleTest.
 
 After building, run the application from the corresponding build directory.
 
+> Warning: without `--dry-run`, matching processes are terminated immediately and without confirmation.
+
 Debug build example:
 
 ```bat
@@ -72,7 +74,7 @@ Supported options:
 --time <minutes>    Minimum process running time in minutes.
                     Must be a positive decimal integer.
 
---dry-run           Print matching processes without terminating them.
+--dry-run           Preview processes that would be terminated without terminating them.
 
 --help, -h          Show usage information.
 ```
@@ -80,9 +82,52 @@ Supported options:
 Examples:
 
 ```bat
-killer.exe --procmask "*chrome*" --time 5
+killer.exe --procmask "*chrome*" --time 5 --dry-run
 killer.exe --procmask "chrome.exe" --time 10 --dry-run
+killer.exe --procmask "*chrome*" --time 5
 killer.exe --help
+```
+
+## Output
+
+In dry-run mode, the application prints matching processes that can be opened with termination rights, but does not terminate them.
+
+Example dry-run summary:
+
+```text
+Dry run: no processes will be terminated.
+PID: 1234  Name: chrome.exe  Runtime: 600 sec
+
+Summary:
+  Matched process candidates: 1
+  Processes that would be terminated: 1
+  Skipped because termination access is unavailable: 0
+```
+
+In normal mode, the application attempts to terminate matching processes and prints a summary of successful and failed termination attempts.
+
+Example normal-run summary:
+
+```text
+PID: 1234  Name: chrome.exe  Runtime: 600 sec
+
+Summary:
+  Matched process candidates: 1
+  Terminated: 1
+  Failed: 0
+```
+
+## Exit codes
+
+```text
+0   Success.
+    Includes help, successful dry-run, no matching processes, and successful termination run.
+
+1   Application or input failure.
+    Includes invalid command line, internal parse-result inconsistency, or inability to enumerate processes.
+
+2   Partial operation failure.
+    One or more matching processes could not be terminated.
 ```
 
 ## Tests
@@ -101,7 +146,7 @@ tests\WildcardMatcherTests.cpp
 tests\ProcessFilterTests.cpp
 ```
 
-By contrast, Windows process enumeration wraps WinAPI calls directly and is verified manually rather than with unit tests.
+By contrast, Windows process enumeration and termination wrap WinAPI calls directly and are verified manually rather than with unit tests.
 
 Tests use GoogleTest. The test build first tries to use a locally available GoogleTest package. If GoogleTest is not found, CMake uses FetchContent to download GoogleTest for the test build.
 
@@ -112,6 +157,16 @@ build-test\_deps\
 ```
 
 This dependency is used only for tests and is not linked into the final `killer.exe` application.
+
+## Manual smoke check
+
+A safe dry-run smoke check can be run after a Debug build:
+
+```bat
+build-debug\killer.exe --procmask "*" --time 1 --dry-run
+```
+
+This command exercises command-line parsing, process enumeration, process filtering, and termination-access checking without terminating processes.
 
 ## Format
 

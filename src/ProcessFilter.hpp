@@ -6,7 +6,6 @@
 #include "ProcessInfo.hpp"
 
 #include <chrono>
-#include <optional>
 #include <span>
 #include <string_view>
 #include <vector>
@@ -15,7 +14,7 @@
 struct FilterCriteria {
     std::wstring_view process_mask{};
     std::chrono::seconds minimum_runtime{};
-    unsigned long current_process_id{};
+    ProcessId current_process_id{};
 };
 
 /// Filters processes by name mask and minimum runtime.
