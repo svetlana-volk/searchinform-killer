@@ -101,6 +101,8 @@ tests\WildcardMatcherTests.cpp
 tests\ProcessFilterTests.cpp
 ```
 
+By contrast, Windows process enumeration wraps WinAPI calls directly and is verified manually rather than with unit tests.
+
 Tests use GoogleTest. The test build first tries to use a locally available GoogleTest package. If GoogleTest is not found, CMake uses FetchContent to download GoogleTest for the test build.
 
 The downloaded GoogleTest sources are cached inside the test build directory:

@@ -14,7 +14,7 @@
 /// Criteria used to select matching process candidates.
 struct FilterCriteria {
     std::wstring_view process_mask{};
-    std::chrono::minutes minimum_runtime{};
+    std::chrono::seconds minimum_runtime{};
     unsigned long current_process_id{};
 };
 

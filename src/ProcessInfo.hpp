@@ -4,11 +4,15 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
 #include <string>
+
+/// Process identifier used by the killer utility.
+using ProcessId = std::uint32_t;
 
 /// Basic process information required by the killer utility.
 struct ProcessInfo {
-    unsigned long process_id{};
+    ProcessId process_id{};
     std::wstring process_name{};
-    std::chrono::minutes runtime{};
+    std::chrono::seconds runtime{};
 };
