@@ -8,6 +8,7 @@
 #include <cwctype>
 #include <format>
 #include <optional>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -21,43 +22,74 @@ constexpr std::wstring_view dry_run_option{L"--dry-run"};
 constexpr std::wstring_view help_option{L"--help"};
 constexpr std::wstring_view short_help_option{L"-h"};
 
+/// Creates an error message for a duplicate option.
+/// @param option_name Option name.
+/// @return Formatted error message.
 std::wstring duplicate_option_message(std::wstring_view option_name) {
     return std::format(L"Duplicate {} option.", option_name);
 }
 
+/// Creates an error message for a missing option value.
+/// @param option_name Option name.
+/// @return Formatted error message.
 std::wstring missing_value_message(std::wstring_view option_name) {
     return std::format(L"Missing value for {}.", option_name);
 }
 
+/// Creates an error message for a missing required option.
+/// @param option_name Option name.
+/// @return Formatted error message.
 std::wstring missing_required_message(std::wstring_view option_name) {
     return std::format(L"Missing required {} option.", option_name);
 }
 
+/// Creates an error message for an invalid positive integer.
+/// @param option_name Option name.
+/// @return Formatted error message.
 std::wstring invalid_positive_int_message(std::wstring_view option_name) {
     return std::format(L"{} must be a positive integer (1 to 2147483647).", option_name);
 }
 
+/// Creates an error message for an empty process mask.
+/// @param option_name Option name.
+/// @return Formatted error message.
 std::wstring empty_process_mask_message(std::wstring_view option_name) {
     return std::format(L"{} must not be empty.", option_name);
 }
 
+/// Creates an error message for an unknown argument.
+/// @param arg Unknown command-line argument.
+/// @return Formatted error message.
 std::wstring unknown_argument_message(std::wstring_view arg) {
     return std::format(L"Unknown argument: {}", arg);
 }
 
+/// Checks whether an argument requests help.
+/// @param arg Command-line argument.
+/// @return True if the argument is a help option.
 bool is_help_option(std::wstring_view arg) {
     return arg == help_option || arg == short_help_option;
 }
 
+/// Checks whether an argument is a supported option.
+/// @param arg Command-line argument.
+/// @return True if the argument is a known option.
 bool is_known_option(std::wstring_view arg) {
     return arg == process_mask_option || arg == time_option || arg == dry_run_option || arg == help_option ||
            arg == short_help_option;
 }
 
+/// Checks whether an option has a following value.
+/// @param args Command-line arguments.
+/// @param arg_index Option argument index.
+/// @return True if the next argument exists and is not another known option.
 bool has_required_option_value(std::span<const std::wstring_view> args, std::size_t arg_index) {
     return arg_index + 1 < args.size() && !is_known_option(args[arg_index + 1]);
 }
 
+/// Parses a positive decimal integer.
+/// @param value Text value to parse.
+/// @return Parsed integer, or std::nullopt if the value is invalid.
 std::optional<int> parse_positive_int(std::wstring_view value) {
     if (value.empty() || !std::ranges::all_of(value, [](wchar_t ch) {
             return std::iswdigit(ch) != 0;
@@ -75,6 +107,9 @@ std::optional<int> parse_positive_int(std::wstring_view value) {
     }
 }
 
+/// Checks whether a process mask is valid.
+/// @param value Process mask value.
+/// @return True if the process mask is non-empty.
 bool is_valid_process_mask(std::wstring_view value) {
     return !value.empty();
 }

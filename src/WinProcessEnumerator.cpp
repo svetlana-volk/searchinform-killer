@@ -16,10 +16,14 @@
 
 namespace {
 
+/// Strong wrapper for Windows FILETIME ticks.
 struct FiletimeTicks {
     std::uint64_t value{};
 };
 
+/// Converts Windows FILETIME to 100-nanosecond ticks.
+/// @param file_time Windows FILETIME value.
+/// @return FILETIME tick count.
 FiletimeTicks filetime_to_ticks(const FILETIME& file_time) {
     ULARGE_INTEGER value{};
     value.LowPart = file_time.dwLowDateTime;
@@ -28,6 +32,10 @@ FiletimeTicks filetime_to_ticks(const FILETIME& file_time) {
     return FiletimeTicks{.value = value.QuadPart};
 }
 
+/// Gets process runtime from its creation time.
+/// @param process_id Process ID to inspect.
+/// @param current_ticks Current system time expressed as FILETIME ticks.
+/// @return Process runtime, or std::nullopt if runtime cannot be obtained.
 std::optional<std::chrono::seconds> get_process_runtime(ProcessId process_id, FiletimeTicks current_ticks) {
     const UniqueHandle process_handle{OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, process_id)};
 
