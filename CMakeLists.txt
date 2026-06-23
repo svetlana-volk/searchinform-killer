@@ -81,6 +81,10 @@ if(BUILD_TESTING)
         tests/WildcardMatcherTests.cpp
     )
 
+    if(MSVC)
+        target_compile_options(killer_tests PRIVATE /utf-8)
+    endif()
+
     target_link_libraries(killer_tests PRIVATE
         killer_core
         GTest::gtest_main

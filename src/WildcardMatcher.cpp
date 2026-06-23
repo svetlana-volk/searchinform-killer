@@ -3,26 +3,41 @@
 
 #include "WildcardMatcher.hpp"
 
-#include <algorithm>
-#include <cwctype>
 #include <string>
 #include <string_view>
 
-WildcardMatcher::WildcardMatcher(std::wstring_view process_mask) : process_mask_{process_mask} {
-    std::ranges::transform(process_mask_, process_mask_.begin(), [](wchar_t ch) {
-        return static_cast<wchar_t>(std::towlower(ch));
-    });
+#include <windows.h>
+
+namespace {
+
+/// Converts wide string to lowercase using Windows character mapping.
+/// @param value Text to convert.
+/// @return Lowercase text.
+std::wstring to_lowercase(std::wstring_view value) {
+    std::wstring result{value};
+
+    if (!result.empty()) {
+        CharLowerBuffW(result.data(), static_cast<DWORD>(result.size()));
+    }
+
+    return result;
 }
 
+} // namespace
+
+WildcardMatcher::WildcardMatcher(std::wstring_view process_mask) : process_mask_{to_lowercase(process_mask)} {}
+
 bool WildcardMatcher::matches(std::wstring_view process_name) const {
+    const std::wstring lower_process_name{to_lowercase(process_name)};
+
     std::size_t mask_index{0};
     std::size_t name_index{0};
 
     std::size_t last_star_index{std::wstring_view::npos};
     std::size_t name_index_after_star{0};
 
-    while (name_index < process_name.size()) {
-        const wchar_t process_name_char{static_cast<wchar_t>(std::towlower(process_name[name_index]))};
+    while (name_index < lower_process_name.size()) {
+        const wchar_t process_name_char{lower_process_name[name_index]};
 
         if (mask_index < process_mask_.size() &&
             (process_mask_[mask_index] == L'?' || process_mask_[mask_index] == process_name_char)) {
@@ -38,7 +53,7 @@ bool WildcardMatcher::matches(std::wstring_view process_name) const {
             continue;
         }
 
-        if (last_star_index != std::wstring::npos) {
+        if (last_star_index != std::wstring_view::npos) {
             mask_index = last_star_index + 1;
             ++name_index_after_star;
             name_index = name_index_after_star;

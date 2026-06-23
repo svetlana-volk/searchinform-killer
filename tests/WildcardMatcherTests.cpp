@@ -85,6 +85,13 @@ TEST(WildcardMatcherTests, MatchesCyrillicProcessName) {
     EXPECT_FALSE(matcher.matches(L"chrome.exe"));
 }
 
+TEST(WildcardMatcherTests, MatchesCyrillicInsensitiveProcessName) {
+    const WildcardMatcher matcher{L"*тест*"};
+
+    EXPECT_TRUE(matcher.matches(L"мой_Тест.exe"));
+    EXPECT_FALSE(matcher.matches(L"chrome.exe"));
+}
+
 TEST(WildcardMatcherTests, ConsecutiveStarsBehaveLikeSingleStar) {
     const WildcardMatcher matcher{L"**chrome***"};
 
