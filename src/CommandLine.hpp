@@ -7,6 +7,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <variant>
 
 /// Parsed command-line options for a normal application run.
 struct Options {
@@ -15,12 +16,16 @@ struct Options {
     bool dry_run{false};
 };
 
-/// Result of command-line parsing, including success, help, or error state.
-struct ParseResult {
-    std::optional<Options> options{};
-    bool help_requested{false};
+/// Indicates that the user requested command line help.
+struct HelpRequested {};
+
+/// Describes an invalid command line.
+struct ParseError {
     std::wstring error_message{};
 };
+
+/// Result of command-line parsing or help, or error state.
+using ParseResult = std::variant<Options, HelpRequested, ParseError>;
 
 /// Parses command-line arguments into application options.
 /// Invalid user input is reported through ParseResult::error_message.
