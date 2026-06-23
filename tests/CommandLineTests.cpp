@@ -5,27 +5,32 @@
 
 #include <array>
 #include <string_view>
+#include <variant>
 
 #include <gtest/gtest.h>
 
 namespace {
 
-void expect_normal_parse_status(const ParseResult& result) {
-    EXPECT_FALSE(result.help_requested);
-    EXPECT_TRUE(result.error_message.empty());
-    EXPECT_FALSE(result.options->dry_run);
+/// Returns parsed options from a successful parse result.
+/// @param result Parse result to inspect.
+/// @return Parsed options.
+const Options& get_options(const ParseResult& result) {
+    return std::get<Options>(result);
 }
 
+/// Checks that parse result is a help request.
+/// @param result Parse result to inspect.
 void expect_help_result(const ParseResult& result) {
-    EXPECT_TRUE(result.help_requested);
-    EXPECT_FALSE(result.options.has_value());
-    EXPECT_TRUE(result.error_message.empty());
+    EXPECT_TRUE(std::holds_alternative<HelpRequested>(result));
 }
 
+/// Checks that parse result is an error.
+/// @param result Parse result to inspect.
 void expect_parse_error(const ParseResult& result) {
-    EXPECT_FALSE(result.error_message.empty());
-    EXPECT_FALSE(result.options.has_value());
-    EXPECT_FALSE(result.help_requested);
+    const ParseError* error{std::get_if<ParseError>(&result)};
+
+    ASSERT_NE(error, nullptr);
+    EXPECT_FALSE(error->error_message.empty());
 }
 
 } // namespace
@@ -40,13 +45,11 @@ TEST(CommandLineTests, ParsesRequiredArguments) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_EQ(result.options->process_mask, L"*chrome*");
-    EXPECT_EQ(result.options->time_minutes, 5);
-
-    expect_normal_parse_status(result);
+    EXPECT_EQ(options.process_mask, L"*chrome*");
+    EXPECT_EQ(options.time_minutes, 5);
+    EXPECT_FALSE(options.dry_run);
 }
 
 TEST(CommandLineTests, ParsesMaskWithQuestionMark) {
@@ -59,13 +62,11 @@ TEST(CommandLineTests, ParsesMaskWithQuestionMark) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_EQ(result.options->process_mask, L"chrome?.exe");
-    EXPECT_EQ(result.options->time_minutes, 10);
-
-    expect_normal_parse_status(result);
+    EXPECT_EQ(options.process_mask, L"chrome?.exe");
+    EXPECT_EQ(options.time_minutes, 10);
+    EXPECT_FALSE(options.dry_run);
 }
 
 TEST(CommandLineTests, ParsesExactProcessNameAsMask) {
@@ -78,13 +79,11 @@ TEST(CommandLineTests, ParsesExactProcessNameAsMask) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_EQ(result.options->process_mask, L"chrome.exe");
-    EXPECT_EQ(result.options->time_minutes, 10);
-
-    expect_normal_parse_status(result);
+    EXPECT_EQ(options.process_mask, L"chrome.exe");
+    EXPECT_EQ(options.time_minutes, 10);
+    EXPECT_FALSE(options.dry_run);
 }
 
 TEST(CommandLineTests, ParsesMaskWithAllowedSeparators) {
@@ -97,13 +96,11 @@ TEST(CommandLineTests, ParsesMaskWithAllowedSeparators) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_EQ(result.options->process_mask, L"chrome-1_t.exe");
-    EXPECT_EQ(result.options->time_minutes, 10);
-
-    expect_normal_parse_status(result);
+    EXPECT_EQ(options.process_mask, L"chrome-1_t.exe");
+    EXPECT_EQ(options.time_minutes, 10);
+    EXPECT_FALSE(options.dry_run);
 }
 
 TEST(CommandLineTests, ParsesDryRun) {
@@ -117,15 +114,11 @@ TEST(CommandLineTests, ParsesDryRun) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_TRUE(result.options->dry_run);
-    EXPECT_EQ(result.options->process_mask, L"chrome.exe");
-    EXPECT_EQ(result.options->time_minutes, 10);
-
-    EXPECT_FALSE(result.help_requested);
-    EXPECT_TRUE(result.error_message.empty());
+    EXPECT_TRUE(options.dry_run);
+    EXPECT_EQ(options.process_mask, L"chrome.exe");
+    EXPECT_EQ(options.time_minutes, 10);
 }
 
 TEST(CommandLineTests, ParsesLongHelp) {
@@ -315,13 +308,11 @@ TEST(CommandLineTests, ParsesMaskWithSpace) {
     };
 
     const ParseResult result{parse_command_line(args)};
+    const Options& options{get_options(result)};
 
-    ASSERT_TRUE(result.options.has_value());
-
-    EXPECT_EQ(result.options->process_mask, L"My App.exe");
-    EXPECT_EQ(result.options->time_minutes, 10);
-
-    expect_normal_parse_status(result);
+    EXPECT_EQ(options.process_mask, L"My App.exe");
+    EXPECT_EQ(options.time_minutes, 10);
+    EXPECT_FALSE(options.dry_run);
 }
 
 TEST(CommandLineTests, RejectsUnknownArgument) {

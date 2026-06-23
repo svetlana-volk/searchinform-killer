@@ -135,22 +135,22 @@ ParseResult parse_command_line(std::span<const std::wstring_view> args) {
         const std::wstring_view arg{args[arg_index]};
 
         if (is_help_option(arg)) {
-            return {.help_requested = true};
+            return HelpRequested{};
         }
 
         if (arg == process_mask_option) {
             if (process_mask.has_value()) {
-                return {.error_message = duplicate_option_message(process_mask_option)};
+                return ParseError{.error_message = duplicate_option_message(process_mask_option)};
             }
 
             if (!has_required_option_value(args, arg_index)) {
-                return {.error_message = missing_value_message(process_mask_option)};
+                return ParseError{.error_message = missing_value_message(process_mask_option)};
             }
 
             const std::wstring_view mask_value{args[arg_index + 1]};
 
             if (!is_valid_process_mask(mask_value)) {
-                return {.error_message = empty_process_mask_message(process_mask_option)};
+                return ParseError{.error_message = empty_process_mask_message(process_mask_option)};
             }
 
             process_mask = std::wstring{mask_value};
@@ -161,16 +161,16 @@ ParseResult parse_command_line(std::span<const std::wstring_view> args) {
 
         if (arg == time_option) {
             if (time_minutes.has_value()) {
-                return {.error_message = duplicate_option_message(time_option)};
+                return ParseError{.error_message = duplicate_option_message(time_option)};
             }
 
             if (!has_required_option_value(args, arg_index)) {
-                return {.error_message = missing_value_message(time_option)};
+                return ParseError{.error_message = missing_value_message(time_option)};
             }
 
             const auto parsed_time{parse_positive_int(args[arg_index + 1])};
             if (!parsed_time.has_value()) {
-                return {.error_message = invalid_positive_int_message(time_option)};
+                return ParseError{.error_message = invalid_positive_int_message(time_option)};
             }
 
             time_minutes = *parsed_time;
@@ -180,30 +180,27 @@ ParseResult parse_command_line(std::span<const std::wstring_view> args) {
 
         if (arg == dry_run_option) {
             if (dry_run) {
-                return {.error_message = duplicate_option_message(dry_run_option)};
+                return ParseError{.error_message = duplicate_option_message(dry_run_option)};
             }
 
             dry_run = true;
             continue;
         }
 
-        return {.error_message = unknown_argument_message(arg)};
+        return ParseError{.error_message = unknown_argument_message(arg)};
     }
 
     if (!process_mask.has_value()) {
-        return {.error_message = missing_required_message(process_mask_option)};
+        return ParseError{.error_message = missing_required_message(process_mask_option)};
     }
 
     if (!time_minutes.has_value()) {
-        return {.error_message = missing_required_message(time_option)};
+        return ParseError{.error_message = missing_required_message(time_option)};
     }
 
-    ParseResult result{};
-    result.options = Options{
+    return Options{
         .process_mask = std::move(*process_mask),
         .time_minutes = *time_minutes,
         .dry_run = dry_run,
     };
-
-    return result;
 }
